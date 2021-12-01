@@ -305,4 +305,10 @@ public class Game
     private void printBackpack() {
         System.out.println(player.getBackpackString());   
     }
+
+    // the main method is the entry point of the program
+    // you can't run it without it
+    public static void main(String[] args) {
+        new Game().play();
+    }
 }
