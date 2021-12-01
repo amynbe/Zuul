@@ -49,7 +49,7 @@ public class Game
     
         // create the rooms
         outside = new Room("outside the front door of the hospital");
-        reception = new Room("in reception room of the hospital");
+        reception = new Room("in reception room of the hospital. Don't go south!");
         waitingRoom = new Room("in the waiting room");
         janitorOffice = new Room("in the janitor's office");
         storeRoom = new Room("in the store room");
@@ -211,6 +211,23 @@ public class Game
             roomHistory.push(player.getEnterRoom());
             player.enterRoom(nextRoom);
             System.out.println(player.getLongDescription());
+        }
+
+        if (player.getCurrentRoom().getShortDescription().equals("outside the front door of the hospital")){
+            System.out.println("Zombies are here. Game over.");
+            System.exit(0);
+        }
+        else if (player.getCurrentRoom().getShortDescription().equals("in the hospital lab")){
+
+            Collection<Item> playerItems = player.getBackpack().getItems().values();
+            List<Item> itemsRequiredToWin = getItemsRequiredToWin();
+
+            if (playerItems.containsAll(itemsRequiredToWin)) {
+                System.out.println("You have entered the lab room and you got all the ingredients for the antidote.");
+                System.out.println("Well done. You win.");
+                System.exit(0);
+            }
+
         }
     }
     
