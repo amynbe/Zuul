@@ -12,18 +12,16 @@ import java.util.Iterator;
  * connected to other rooms via exits.  For each existing exit, the room 
  * stores a reference to the neighboring room.
  * 
- * @author  Michael Kolling and David J. Barnes
- * @version 1.0 (February 2002)
+ * @author  Michael Kolling and David J. Barnes and Katia Bennamane
+ * @version 2016.02.29
  */
 
 public class Room 
 {
     private String description;
-    private HashMap<String, Exit> exits;        // stores exits of this room.
-    private HashMap<String, Item> items;        // stores items of this room.
-    private HashMap<String, NPC> npcs;
-    private HashMap<String, Door> doors;
-
+    private HashMap<String, Room> exits;        // stores exits of this room.
+    private Backpack items;        // stores items available in this room.
+    
     /**
      * Create a room described "description". Initially, it has no exits.
      * "description" is something like "in a kitchen" or "in an open court 
@@ -32,64 +30,8 @@ public class Room
     public Room(String description) 
     {
         this.description = description;
-        exits = new HashMap<String, Exit>();
-        items = new HashMap<String, Item>();
-        npcs = new HashMap<String, NPC>();
-        doors = new HashMap<String, Door>();
-    }
-    
-    /**
-     * Adds an NPC described by a name/desc and with an item of name/desc to the room.
-     */
-    public void addNPC(String name, String description, String itemname, String itemdesc)
-    {
-    
-        Set<String> keys = npcs.keySet();
-        for(String npc : keys)
-            if (npc.equals(name))
-                return;
-    
-        NPC newNPC = new NPC(name, description, itemname, itemdesc);
-        npcs.put(name, newNPC);
-        
-    }
-    
-    /**
-     * Adds an item to the items list, if it's there already just don't add it.
-     */
-    public void setItem(String name, String description)
-    {
-        // Check to see if the item already exists in the items list
-        // If it is, just don't add it.
-               
-        Set<String> keys = items.keySet();
-        for(String item : keys)
-            if (item.equals(name))
-                return;
-        
-        Item newItem = new Item(description, name);
-        items.put(name, newItem);
-    }
-    
-    
-    /**
-     * Removes an item from the room and returns it.
-     */
-    public Item delItem(String name)
-    {
-     
-        Set<String> keys = items.keySet();
-        for(String item : keys) {
-            if (item.equals(name))
-            {
-                Item temp = items.get(name);
-                items.remove(name);
-                return temp;
-            }            
-        }
-        System.out.println("That isn't here.");
-        return null;
-        
+        exits = new HashMap<String, Room>();
+        items = new Backpack();
     }
 
     /**
@@ -97,17 +39,7 @@ public class Room
      */
     public void setExit(String direction, Room neighbor) 
     {
-        Exit temp = new Exit(direction, neighbor);
-        exits.put(direction, temp);
-    }
-    
-    /**
-     * Defines a lockable exit, or door, for the room.
-     */
-    public void setDoor(String direction, Room neighbor, boolean locked)
-    {
-        Door temp = new Door(direction, neighbor, locked);
-        doors.put(direction, temp);
+        exits.put(direction, neighbor);
     }
 
     /**
@@ -126,9 +58,9 @@ public class Room
      */
     public String getLongDescription()
     {
-        return "You are " + description + ".\n" + getExitString() + "\n" + getDoorString() + "\n" + getItemString() + "\n" + getNPCString();
+        return "You are " + description + ".\n" + getExitString() + "\nItems in the room:" + items.getLongDescription();
     }
-
+   
     /**
      * Return a string describing the room's exits, for example
      * "Exits: north west".
@@ -137,45 +69,9 @@ public class Room
     {
         String returnString = "Exits:";
         Set<String> keys = exits.keySet();
-        for(String exit : keys)
-            returnString += " " + exit;
-        return returnString;
-    }
-    
-    /**
-     * Return a string containing the room's doors, for example
-     * "Doors: portal".
-     */
-    private String getDoorString()
-    {
-        String returnString = "Doors:";
-        Set<String> keys = doors.keySet();
-        for(String door : keys)
-            returnString += " " + door;
-        return returnString;
-    }
-    
-    /**
-     * Return a string containing the room's items.
-     */
-    private String getItemString()
-    {
-        String returnString = "Items:";
-        Set<String> keys = items.keySet();
-        for(String item : keys)
-            returnString += " " + item;
-        return returnString;
-    }
-    
-    /**
-     * Return a string containing the NPCs in a room.
-     */
-    private String getNPCString()
-    {
-        String returnString = "NPCS:";
-        Set<String> keys = npcs.keySet();
-        for(String npc : keys)
-            returnString += " " + npc;
+        for(Iterator<String> iter = keys.iterator(); iter.hasNext(); ){
+            returnString += " " + iter.next();
+        }
         return returnString;
     }
 
@@ -185,46 +81,35 @@ public class Room
      */
     public Room getExit(String direction) 
     {
-        Exit tempExit = exits.get(direction);
-        if (tempExit != null)
-        {
-            return tempExit.getNeighbor();
-        }
-        return null;
+        return exits.get(direction);
     }
     
     /**
-     * Return the room reached if we go from this room in direction "direction."
-     * If there is no room in that direction, return null.
+     * Puts an item into this room.
+     * @param item The item put into the room.
      */
-    public Room getDoor(String direction)
+    public void addItem(Item item)
     {
-        Door tempDoor = doors.get(direction);
-        if (tempDoor != null)
-        {
-            return tempDoor.getNeighbor();
-        }
-        return null;
+        items.put(item.getName(), item);
     }
     
-    public boolean getLocked(String direction)
-    {
-        return doors.get(direction).getLocked();
-    }
-    
-    public Door getActualDoor(String direction)
-    {
-        return doors.get(direction);
-    }
-    
+    /**
+     * Returns the item if it is available, otherwise it returns null.
+     * @param name The name of the item to be returned.
+     * @return The named item, or null if it is not in the room.
+     */
     public Item getItem(String name)
     {
         return items.get(name);
-    }
-    
-    public NPC getNPC()
-    {
-        return npcs.entrySet().iterator().next().getValue();
     }    
+    
+    /**
+     * Removes and returns the item if it is available, otherwise it returns null.
+     * @param name The item to be removed.
+     * @return The item if removed, null otherwise.
+     */
+    public Item removeItem(String name)
+    {
+        return items.remove(name);
+    }
 }
-

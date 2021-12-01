@@ -14,7 +14,7 @@
  * If the command had only one word, then the second word is <null>.
  * 
  * @author  Michael Kolling and David J. Barnes
- * @version 1.0 (February 2002)
+ * @version 2016.02.29
  */
 
 public class Command
@@ -24,8 +24,10 @@ public class Command
 
     /**
      * Create a command object. First and second word must be supplied, but
-     * either one (or both) can be null. The command word should be null to
-     * indicate that this was a command that is not recognised by this game.
+     * either one (or both) can be null.
+     * @param firstWord The first word of the command. Null if the command
+     *                  was not recognised.
+     * @param secondWord The second word of the command.
      */
     public Command(String firstWord, String secondWord)
     {
@@ -36,6 +38,7 @@ public class Command
     /**
      * Return the command word (the first word) of this command. If the
      * command was not understood, the result is null.
+     * @return The command word.
      */
     public String getCommandWord()
     {
@@ -43,7 +46,7 @@ public class Command
     }
 
     /**
-     * Return the second word of this command. Returns null if there was no
+     * @return The second word of this command. Returns null if there was no
      * second word.
      */
     public String getSecondWord()
@@ -52,7 +55,7 @@ public class Command
     }
 
     /**
-     * Return true if this command was not understood.
+     * @return true if this command was not understood.
      */
     public boolean isUnknown()
     {
@@ -60,11 +63,10 @@ public class Command
     }
 
     /**
-     * Return true if the command has a second word.
+     * @return true if the command has a second word.
      */
     public boolean hasSecondWord()
     {
         return (secondWord != null);
     }
 }
-

@@ -5,15 +5,15 @@
  * This class holds an enumeration of all command words known to the game.
  * It is used to recognise commands as they are typed in.
  *
- * @author  Michael Kolling and David J. Barnes
- * @version 1.0 (February 2002)
+ * @author  Michael Kolling and David J. Barnes and Katia Bennamane
+ * @version 2016.02.29
  */
 
 public class CommandWords
 {
     // a constant array that holds all valid command words
     private static final String[] validCommands = {
-        "go", "quit", "help", "take", "drop", "trade", "examine", "lock", "unlock"
+        "go", "quit", "help","back", "take", "drop", "backpack",
     };
 
     /**
@@ -26,13 +26,14 @@ public class CommandWords
 
     /**
      * Check whether a given String is a valid command word. 
-     * Return true if it is, false if it isn't.
+     * @return true if it is, false if it isn't.
      */
     public boolean isCommand(String aString)
     {
         for(int i = 0; i < validCommands.length; i++) {
-            if(validCommands[i].equals(aString))
+            if(validCommands[i].equals(aString)){
                 return true;
+            }
         }
         // if we get here, the string was not found in the commands
         return false;
@@ -43,8 +44,8 @@ public class CommandWords
      */
     public void showAll() 
     {
-        for(int i = 0; i < validCommands.length; i++) {
-            System.out.print(validCommands[i] + "  ");
+        for(String command: validCommands) {
+            System.out.print(command + "  ");
         }
         System.out.println();
     }

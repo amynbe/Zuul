@@ -1,124 +1,135 @@
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Iterator;
-
 /**
- * Player.java. Stores information about the player character and his inventory.
+ * This is the representation of a player in the game Zuul.
  * 
- * @author William S. Judd
+ * @author Katia Bennamane
+ * @version 2021.12.03
  */
+
 public class Player
 {
+    // The player's name.
+    private String name;
+    // The room the player is in.
     private Room currentRoom;
-    private HashMap<String, Item> inventory;
+    // The item's the player is holding.
+    private Room previousRoom;
 
+    private Backpack items = new Backpack();
+    // The maximum weight the player can hold.
+    private int maxWeight;
+
+    /**
+     * Constructor for objects of class Player
+     */
     public Player()
     {
-        currentRoom = new Room("starting room");
-        inventory = new HashMap<String, Item>();
+        this.maxWeight = 345;
     }
 
+    /**
+     * Enter the given room.
+     * @param room The room entered.
+     */
+    public void enterRoom(Room room)
+    {
+        currentRoom = room;
+    }
+
+    public Room getEnterRoom()
+    {
+        return currentRoom;
+    }
+
+    /**
+     * Gets the room in which the player is currently located.
+     * @return The current room.
+     */
     public Room getCurrentRoom()
     {
         return currentRoom;
     }
-    
-    public void setCurrentRoom(Room newRoom)
-    {
-        currentRoom = newRoom;
-    }
-    
+
+    // /**
+     // * Get the name of the player.
+     // * @return The player's name
+     // */
+    // public String getName()
+    // {
+        // return name;
+    // }
+
     /**
-     * Iterates through the inventory, adding all items
-     * to a String, then returns it.
+     * Returns a string describing the items that the player carries.
+     * @return A description of the items held.
      */
-    public String getInventoryString()
+    public String getBackpackString()
     {
-        String returnString = "Inventory:";
-        Set<String> keys = inventory.keySet();
-        for(String item : keys)
-            returnString += " " + item;
+        return "You are carrying: " + items.getShortDescription();
+    }
+
+    /**
+     * Returns a string describing the players current location and which
+     * items the player carries.
+     * @return A description of the room and items held.
+     */
+    public String getLongDescription()
+    {       
+        String returnString = currentRoom.getLongDescription();
+        //returnString += "\" + getBackpackString();
         return returnString;
     }
-    
-    /**
-     * Checks the player's inventory to see if we have a key.
-     */
-    public boolean checkKey()
-    {
-        Set<String> keys = inventory.keySet();
-        for(String item : keys)
-            if (item.equals("key"))
-                return true;
-        return false;
-    }
-    
-    /**
-     * Returns a string that has the description of the examined item.
-     */
-    public String getExamineString(String name)
-    {
-        String returnString = "You examine the " + name + ".\n";
-        Item temp = inventory.get(name);
-        if (temp != null) {
-            returnString += "It's " + temp.getDescription() + ".";
-            return returnString;
-        }
-        return "You can only examine items in your inventory.";
-    }
-    
-    /**
-     * Adds the item of name and description to the inventory.
-     */
-    public void addInventory(String name, String description)
-    {
-        Set<String> keys = inventory.keySet();
-        for(String item : keys) {
-            if (item.equals(name))
-            {
-                System.out.println("We've already got one!");
-                return;
-            }   
-        }
-        Item newItem = new Item(description, name);
-        inventory.put(name, newItem);
-    }
-   
-    /**
-     * Directly adds an item to the inventory.
-     */
-    public void addInventory(Item item)
-    {
-        inventory.put(item.getName(), item);
-    }
-    
-    /**
-     * Drops an item from the inventory, returning it.
-     */
-    public Item dropInventory(String name)
-    {
-        Set<String> keys = inventory.keySet();
-        for(String item : keys) {
-            if (item.equals(name))
-            {
-                Item temp = inventory.get(name);
-                inventory.remove(name);
-                return temp;
 
-            }   
-        }
-        System.out.println("We've haven't got one!");
-        return null;
-
-    }
-   
     /**
-     * Drops all items from the inventory, returning the first.
+     * Tries to pick up the item from the current room.
+     * @param itemName The item to be picked up.
+     * @return If successful this method will return the item that was picked up.
      */
-    public Item dropInventory()
+    public Item pickUpItem(String itemName)
     {
-        Item temp = inventory.entrySet().iterator().next().getValue();
-        inventory.clear();
-        return temp;
+        if(canPickItem(itemName)) {
+            Item item = currentRoom.removeItem(itemName);
+            items.put(itemName, item);            
+            return item;
+        } 
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Tries to drop an item into the current room.
+     * @param itemName The item to be dropped.
+     * 
+     * @return If successful this method will return the item that was dropped.
+     */
+    public Item dropItem(String itemName)
+    {
+        Item item = items.remove(itemName);
+        if(item != null) {
+            currentRoom.addItem(item);            
+        }
+        return item;
+    }
+
+    /**
+     * Checks if we can pick up the given item. This depends on whether the item 
+     * actually is in the current room and if it is not too heavy.
+     * @parem itemName The item to be picked up.
+     * @return true if the item can be picked up, false otherwise.
+     */
+    private boolean canPickItem(String itemName)
+    {
+        boolean canPick = true;
+        Item item = currentRoom.getItem(itemName);
+        if(item == null) {
+            canPick = false;
+        }
+        else {
+            int totalWeight = items.getTotalWeight() + item.getWeight();
+            if(totalWeight > maxWeight) {
+                canPick = false;
+            }
+        }
+        return canPick;         
     }
 }
