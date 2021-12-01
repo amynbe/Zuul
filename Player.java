@@ -132,4 +132,8 @@ public class Player
         }
         return canPick;         
     }
+
+    public Backpack getBackpack() {
+        return items;
+    }
 }

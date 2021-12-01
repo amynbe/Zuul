@@ -96,4 +96,8 @@ public class Backpack
         }
         return weight;        
     }
+
+    public HashMap<String, Item> getItems() {
+        return items;
+    }
 }

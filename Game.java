@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -24,6 +27,7 @@ public class Game
     private Room previousRoom;
     private Room room;
     private Stack<Room> roomHistory;
+    private List<Item> itemsRequiredToWin = new ArrayList<>();
     
     /**
      * Create the game and initialise its internal map.
@@ -59,7 +63,23 @@ public class Game
         emergencyRoom = new Room("in the emergency room");
         lab = new Room("in the hospital lab");
 
-        // initialise room exits
+        /*
+                                     lab
+
+                                surgeryRoom   emergencyRoom
+                                      |              |
+             storeRoom                |              |
+                |                     |              |
+                |  medicineCabinet    |              |
+                |      |              |              |
+                |       ---------doctorOffice        |
+                |                                    |
+             janitorOffice ----- waitingRoom         |
+                                                     |
+                                  reception ---------
+
+                                  outside
+        */
         outside.setExit("north", reception);
 
         reception.setExit("north", waitingRoom);
@@ -90,14 +110,29 @@ public class Game
     
         lab.setExit("south", surgeryRoom);
     
-        // put items in the room
-        janitorOffice.addItem(new Item("key", "a key that opens the medicine cabinet", 300));
-        storeRoom.addItem(new Item("camomile", "camomile, needed for your antidote!", 75));
-        doctorOffice.addItem(new Item("mint","mint, needed for your antidote!", 50));
-        doctorOffice.addItem(new Item("filing cabinet", "", 2000));
-        medicineCabinet.addItem(new Item("honey","honey, needed for your antidote!", 100));
-        surgeryRoom.addItem(new Item("mistletoe","mistletoe, needed for your antidote!", 80));
-        emergencyRoom.addItem(new Item("mugwort","mugwort, needed for your antidote!", 40));
+        Item key = new Item("key", "a key that opens the medicine cabinet", 300);
+        Item camomile = new Item("camomile", "camomile, needed for your antidote!", 75);
+        Item mint = new Item("mint", "mint, needed for your antidote!", 50);
+        Item filingCabinet = new Item("filing cabinet", "", 2000);
+        Item honey = new Item("honey", "honey, needed for your antidote!", 100);
+        Item mistletoe = new Item("mistletoe", "mistletoe, needed for your antidote!", 80);
+        Item mugwort = new Item("mugwort", "mugwort, needed for your antidote!", 40);
+
+        janitorOffice.addItem(key);
+        storeRoom.addItem(camomile);
+        doctorOffice.addItem(mint);
+        doctorOffice.addItem(filingCabinet);
+        medicineCabinet.addItem(honey);
+        surgeryRoom.addItem(mistletoe);
+        emergencyRoom.addItem(mugwort);
+
+        itemsRequiredToWin.add(camomile);
+        itemsRequiredToWin.add(mint);
+        // this item can't be carried because it's multi-worded and too heavy
+//        itemsRequiredToWin.add(filingCabinet);
+        itemsRequiredToWin.add(honey);
+        itemsRequiredToWin.add(mistletoe);
+        itemsRequiredToWin.add(mugwort);
 
         return reception;
     }
@@ -208,7 +243,7 @@ public class Game
         if (nextRoom == null)
             System.out.println("There is no door!");
         else {
-            roomHistory.push(player.getEnterRoom());
+            roomHistory.push(player.getCurrentRoom());
             player.enterRoom(nextRoom);
             System.out.println(player.getLongDescription());
         }
@@ -254,7 +289,7 @@ public class Game
     private void goBack(Command command)
     {
         if(command.hasSecondWord()) {
-            System.out.println("Back where?");
+            System.out.println("Just say 'back'");
             return;
         }
         
@@ -322,6 +357,10 @@ public class Game
      */
     private void printBackpack() {
         System.out.println(player.getBackpackString());   
+    }
+
+    public List<Item> getItemsRequiredToWin() {
+        return itemsRequiredToWin;
     }
 
     // the main method is the entry point of the program
