@@ -247,6 +247,7 @@ public class Game
             System.out.println("You can't go back to nothing!");
         else {
             previousRoom = roomHistory.pop();
+            player.enterRoom(previousRoom);
             //currentRoom = nextRoom;
             //player.currentRoom();
             //player.getEnterRoom();
